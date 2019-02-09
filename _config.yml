@@ -16,11 +16,13 @@
 title: Gabriel Cruz
 email:
 description: >- # this means to ignore newlines until "baseurl:"
-  Write an awesome description for your new site here. You can edit this
-  line in _config.yml. It will appear in your document head meta (for
-  Google search results) and in your feed.xml site description.
+  My personal site, I have no idea what to put here yet. That's a good thing you know, it means there are no restrictions to what I *can* put here  :)
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://ltkills.github.io" # the base hostname & protocol for your site, e.g. http://example.com
+logo: /images/logo.jpg
+locale: "en-us"
+search_full_content: true # enable full content indexing for search page
+
 twitter_username: ltchills
 github_username:  ltkills
 
@@ -43,5 +45,5 @@ plugins:
 #   - vendor/ruby/
 #
 #
-# For Minimal Mistakes theme
+# For So Simple theme
 remote_theme: "mmistakes/so-simple-theme"
