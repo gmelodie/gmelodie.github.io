@@ -1,120 +1,15 @@
-<!DOCTYPE HTML>
-<!--
-	Highlights by HTML5 UP
-	html5up.net | @ajlkn
-	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
--->
-<html>
-{% include head.html %}
-<body>
-{% include header.html %}
-
-<!-- One -->
-<section id="one" class="main special">
-	<div class="container">
-		<span class="image fit primary"><img src="assets/images/born.jpg" alt="" /></span>
-		<div class="content">
-			<header class="major">
-				<h2>First section</h2>
-			</header>
-      <p>
-        SITE UNDER MAINTENANCE
-      </p>
+<!DOCTYPE html>
+<html lang="{{site.language}}">
+  {% include head.html %}
+  <body>
+	<div id="main">
+		{% include logo.html %}
+		{% include nav.html %}
+		<div id="content-left">
+      <h2>{{page.title}}</h2>
+      {{content}}
 		</div>
-		<a href="#two" class="goto-next scrolly">Next</a>
+		{% include footer.html %}
 	</div>
-</section>
-
-
-<!-- Two -->
-<section id="two" class="main special">
-	<div class="container">
-		<span class="image fit primary"><img src="assets/images/school.jpg" alt="" /></span>
-		<div class="content">
-			<header class="major">
-				<h2>Second section</h2>
-			</header>
-      <p>
-        SITE UNDER MAINTENANCE
-      </p>
-		</div>
-		<a href="#three" class="goto-next scrolly">Next</a>
-	</div>
-</section>
-
-
-<!-- Three -->
-<section id="three" class="main special">
-	<div class="container">
-		<span class="image fit primary"><img src="assets/images/hacker.jpg" alt="" /></span>
-		<div class="content">
-			<header class="major">
-				<h2>Little big Gabriel wants to be a hacker</h2>
-			</header>
-			<p>I'm a computer science student at the University of São Paulo, in São Carlos, Brazil. I'm mainly interested in cyber security, computer networks and web development</p>
-		</div>
-		<a href="#four" class="goto-next scrolly">Next</a>
-	</div>
-</section>
-
-
-<!-- Four -->
-<section id="four" class="main special">
-	<div class="container">
-		<span class="image fit primary"><img src="assets/images/not-hacker.jpg" alt="" /></span>
-		<div class="content">
-			<header class="major">
-				<h2>Big Gabriel becomes not a hacker</h2>
-			</header>
-			<p>I'm a computer science student at the University of São Paulo, in São Carlos, Brazil. I'm mainly interested in cyber security, computer networks and web development</p>
-		</div>
-		<a href="#five" class="goto-next scrolly">Next</a>
-	</div>
-</section>
-
-
-<!-- Five -->
-<section id="five" class="main special">
-	<div class="container">
-		<span class="image fit primary"><img src="assets/images/dawn.jpg" alt="" /></span>
-		<div class="content">
-			<header class="major">
-				<h2>Stuff I do</h2>
-			</header>
-      <p>While creating this section I thought a lot about whether or not to write something here </p>
-			<ul class="icons-grid">
-				<li>
-					<span class="icon major fa-heart"></span>
-					<h3>Psychology</h3>
-				</li>
-				<li>
-					<span class="icon major fa-keyboard-o"></span>
-					<h3>Touch typing</h3>
-				</li>
-				<li>
-					<span class="icon major fa-code"></span>
-					<h3>Code</h3>
-				</li>
-				<li>
-					<span class="icon major fa-flag"></span>
-					<h3>Parkour</h3>
-				</li>
-        <li>
-					<span class="icon major fa-pencil"></span>
-					<h3>Français</h3>
-				</li>
-        <li>
-					<span class="icon major fa-lock"></span>
-					<h3>Lockpicking</h3>
-				</li>
-			</ul>
-		</div>
-		<a href="#footer" class="goto-next scrolly">Next</a>
-	</div>
-</section>
-
-
-{% include footer.html %}
-
-</body>
+    </body>
 </html>
