@@ -85,7 +85,8 @@ $text: #000;
 */
 
 body {
-    font-family: 'Lato', sans-serif;
+    // font-family: 'Lato', sans-serif;
+    font-family: 'Roboto', sans-serif;
     font-size: 16px;
 
     &.active {
@@ -359,7 +360,7 @@ footer {
 #lead-content {
     position: absolute;
     z-index: 10;
-    top: 50%;
+    top: 60%;
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
@@ -372,8 +373,9 @@ footer {
         color: #fff;
         font-weight: 100;
         font-size: 5em;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.02em;
         line-height: 0.9em;
+        margin-bottom: 40px;
     }
 
     h2 {
@@ -382,6 +384,33 @@ footer {
         font-weight: 300;
         font-size: 2.25em;
         margin-bottom: 15px;
+    }
+
+
+    .social {
+        ul {
+            text-align:center;
+            margin: 100px 0 0 0;
+            // padding: 0;
+        }
+
+        li {
+            display: inline-block;
+            font-size: 1.50em;
+            list-style: none;
+        }
+
+        a {
+            display: block;
+            color:lighten($base-color, 25%);
+            padding: 15px 25px;
+            @include transition();
+
+            &:hover {
+                color: #fff;
+                text-decoration: none;
+            }
+        }
     }
 }
 
