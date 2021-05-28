@@ -1,0 +1,22 @@
+Host: 192.168.0.1 (_gateway)	Status: Up
+Host: 192.168.0.1 (_gateway)	Ports: 22/open/tcp//ssh///, 80/open/tcp//http///, 1900/open/tcp//upnp///	Ignored State: closed (997)
+Host: 192.168.0.5 ()	Status: Up
+Host: 192.168.0.5 ()	Ports: 80/open/tcp//http///, 443/open/tcp//https///	Ignored State: closed (998)
+Host: 192.168.0.12 ()	Status: Up
+Host: 192.168.0.12 ()	Ports: 135/open/tcp//msrpc///, 139/open/tcp//netbios-ssn///, 445/open/tcp//microsoft-ds///, 1433/open/tcp//ms-sql-s///, 3389/open/tcp//ms-wbt-server///, 5357/open/tcp//wsdapi///, 7070/open/tcp//realserver///	Ignored State: closed (993)
+Host: 192.168.0.100 ()	Status: Up
+Host: 192.168.0.100 ()	Ports: 53/open/tcp//domain///, 80/open/tcp//http///, 443/open/tcp//https///	Ignored State: closed (997)
+Host: 192.168.0.102 ()	Status: Up
+Host: 192.168.0.102 ()	Ports: 62078/open/tcp//iphone-sync///
+Host: 192.168.0.103 ()	Status: Up
+Host: 192.168.0.103 ()	Ports: 5060/filtered/tcp//sip///	Ignored State: closed (999)
+Host: 192.168.0.104 ()	Status: Up
+Host: 192.168.0.104 ()	Ports: 135/open/tcp//msrpc///, 139/open/tcp//netbios-ssn///, 445/open/tcp//microsoft-ds///, 1433/open/tcp//ms-sql-s///, 2869/open/tcp//icslap///, 5357/open/tcp//wsdapi///, 7070/open/tcp//realserver///	Ignored State: closed (993)
+Host: 192.168.0.105 ()	Status: Up
+Host: 192.168.0.105 ()	Ports: 135/open/tcp//msrpc///, 139/open/tcp//netbios-ssn///, 445/open/tcp//microsoft-ds///, 1433/open/tcp//ms-sql-s///, 2869/open/tcp//icslap///, 5357/open/tcp//wsdapi///, 7070/open/tcp//realserver///, 8010/open/tcp//xmpp///, 8080/open/tcp//http-proxy///	Ignored State: closed (991)
+Host: 192.168.0.106 ()	Status: Up
+Host: 192.168.0.106 ()	Status: Up
+Host: 192.168.0.107 ()	Status: Up
+Host: 192.168.0.107 ()	Ports: 9080/filtered/tcp//glrpc///	Ignored State: closed (999)
+Host: 192.168.0.113 (piano)	Status: Up
+Host: 192.168.0.113 (piano)	Status: Up
