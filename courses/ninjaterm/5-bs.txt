@@ -1,0 +1,5 @@
+0. Baixe o arquivo "bullshit.txt"
+1. Reordene as linhas de acordo com os números no começo de cada uma delas
+2. Mude o nome na linha 7 para o seu nome
+3. Remova os números no início das linhas
+4. Remova todos os demais números/dígitos

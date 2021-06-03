@@ -1,0 +1,4 @@
+1. Use ps e grep para encontrar o PID do bash atual (que outro processo é
+encontrado?)
+2. Use mais magia do grep para imprimir somente o processo do bash (elimine o
+outro encontrado)
