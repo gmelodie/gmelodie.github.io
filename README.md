@@ -5,3 +5,5 @@ Template from [RyanFitzgerald/devportfolio](https://github.com/RyanFitzgerald/de
 
 ## My tweaks
 1. Use [this site](https://gauger.io/fonticon/) to download font awesome icons as favicons
+
+Obs: project pics have to be 300x300
