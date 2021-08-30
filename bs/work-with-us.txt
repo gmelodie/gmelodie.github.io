@@ -1,0 +1,4 @@
+YOUR_COMPANY=$_POST['company']
+WHEN_AVAILABLE=$_POST['available']
+
+I am very interested in working for $YOUR_COMPANY next $WHEN_AVAILABLE. Your commitment to having a diverse development team, and your interest in newtechnologies inspired me! The products you build and the values you stand for make $YOUR_COMPANY seem like an ideal workplace for me.
