@@ -1,3 +1,6 @@
-I'm super passionate about all-things Cybersecurity, Linux, Open Source Software and sharing knowledge. I thrive on building open, free and awesome technology that helps us destroy barriers created by country of origin, sexual orientation, wealth, race, etc. I deeply believe information should be free for everyone, and I hope to get humanity slightly closer to that through my work.
+I'm super passionate about all-things Cybersecurity, Linux, Open Source
+Software and sharing knowledge. I thrive on building open, free and awesome
+technology that helps us destroy barriers created by country of origin, sexual
+orientation, wealth, race, etc. I deeply believe in free information for everyone, and I hope to get humanity slightly closer to that through my work.
 
 Also nothing makes me happier than butchering trailling bad characters, throw me a good :%s/^M// any time :P
