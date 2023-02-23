@@ -1,2 +1,0 @@
-0. Baixe o arquivo "pessoas.txt"
-1. Use for para imprimir "iae PESSOA" para cada PESSOA do arquivo "pessoas.txt"

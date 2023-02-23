@@ -1,5 +1,0 @@
-0. Baixe os arquivos "second.txt" e "passwd"
-1. Imprima cada segunda palavra em second.txt
-2. Imprima todos os usuários de passwd
-3. Imprima todos os usuários do /etc/passwd (que está na sua máquina, não o que
-você baixou)

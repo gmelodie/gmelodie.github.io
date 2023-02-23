@@ -1,5 +1,0 @@
-0. Baixe "scan.txt"
-1. Imprima apenas os endereços IP que foram encontrados e salve-os num novo
-arquivo chamado "ips.txt"
-2. Elimine duplicatas do arquivo ips.txt
-3. Use o comando "ping -c 1" para pingar cada IP na lista do arquivo ips.txt
