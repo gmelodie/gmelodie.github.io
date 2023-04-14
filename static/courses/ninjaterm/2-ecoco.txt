@@ -1,0 +1,5 @@
+1. Imprima exatamente "hello world!"; (com as aspas e ponto e vírgula) usando
+echo
+2. Use o echo para criar o arquivo tchau.txt com o conteúdo "até mais" (sem
+aspas)
+3. Salve a saída do comando ls no diretório atual em um arquivo chamado ls.txt

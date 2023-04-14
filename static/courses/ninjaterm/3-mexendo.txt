@@ -1,0 +1,5 @@
+1. Use o man para pesquisar o que faz o -p no comando "mkdir -p" e use-o para
+criar a pasta ninjaterm/part1 (part1 está dentro de ninjaterm)
+2. Mova todos os arquivos que criamos até agora para a pasta part1 criada
+anteriormente
+3. Remova os arquivos vazios (CUIDADO!!!)

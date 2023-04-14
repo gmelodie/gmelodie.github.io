@@ -1,0 +1,4 @@
+0. Baixe o arquivo "big.txt"
+1. Ache a linha que contém a palavra "OPA" (em maiúsculo)
+2. Ache a linha que contém a palavra "resposta" mas não contém a palavra "seja"
+3. Para os dois últimos exercícios, imprima o número das linhas encontradas
