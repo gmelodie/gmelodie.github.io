@@ -1,9 +1,9 @@
 # gmcruz.github.io
-Personal portfolio website.
+Gabe's portfolio/blog website based on the [hugo-coder](https://github.com/luizdepra/hugo-coder/) hugo theme.
 
-Template from [RyanFitzgerald/devportfolio](https://github.com/RyanFitzgerald/devportfolio).
+Obs: when cloning also clone the hugo template (it's a git submodule) with
+```
+git submodule update --init --recursive
+```
 
-## My tweaks
-1. Use [this site](https://gauger.io/fonticon/) to download font awesome icons as favicons
-
-Obs: project pics have to be 300x300
+Run it locally with `hugo server`

@@ -3071,7 +3071,7 @@ h4,
 h5,
 h6 {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, "游ゴシック", "PingFang SC", STXihei, "华文细黑", "Microsoft YaHei", "微软雅黑", SimSun, "宋体", Heiti, "黑体", sans-serif;
-  font-weight: 600;
+  font-weight: 200;
   color: #000;
   margin: 4rem 0 2.5rem 0; }
   h1:hover .heading-link,
@@ -3103,8 +3103,8 @@ h6 {
     text-decoration: none; }
 
 h1 {
-  font-size: 3.2rem;
-  line-height: 3.6rem; }
+  font-size: 5.8rem;
+  line-height: 7.6rem; }
   @media only screen and (max-width: 768px) {
     h1 {
       font-size: 3rem;
@@ -3343,7 +3343,7 @@ figure {
       flex: 2;
       color: #212121;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, "游ゴシック", "PingFang SC", STXihei, "华文细黑", "Microsoft YaHei", "微软雅黑", SimSun, "宋体", Heiti, "黑体", sans-serif;
-      font-weight: 700; }
+      font-weight: 300; }
       .list ul li .title:hover, .list ul li .title:focus {
         color: #1565c0; }
 
@@ -3479,7 +3479,7 @@ figure {
     display: inline;
     font-size: 1.7rem;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, "游ゴシック", "PingFang SC", STXihei, "华文细黑", "Microsoft YaHei", "微软雅黑", SimSun, "宋体", Heiti, "黑体", sans-serif;
-    font-weight: 600;
+    font-weight: 300;
     color: #212121; }
   .navigation a:hover, .navigation a:focus {
     color: #1565c0; }
