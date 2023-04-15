@@ -3,9 +3,15 @@ title = "Projects"
 slug = "projects"
 +++
 
+# Killer Triangle
+Asteroid-like browser game made in Rust using Macroquad and compiled to WASM.
+
+https://gmelodie.github.io/killer-triangle
+
 # Ninjaterm
 Shell scripting and Vim workshop for more than 20 students at Universidade de São Paulo. Worked from the very basics to advanced shell scripting, interacting with processes, piping, redirecting, and variables. Integrated Vim as a powerful tool to the command-line and shell workflow.
-- [Documentation (pt-BR)](../docs/ninjaterm-docs.pdf)
+
+[Documentation (pt-BR)](../docs/ninjaterm-docs.pdf)
 
 
 # IPv6 Workshop
