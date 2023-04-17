@@ -5,7 +5,7 @@ date = "2023-04-14"
 aliases = ["about-us", "contact"]
 +++
 
-Hey there! I'm Gabe. I'm a Software Engineer based at São Carlos, SP, Brazil.
+Hey there! I'm Gabe. I'm a Software Engineer based in São Carlos, SP, Brazil.
 
 When I was in high school I had a lot of trouble deciding what I wanted to do for a living, and that's mostly because I'm a very aggressive person when it comes to working: if I'm into something, I want to give my heart and soul to that. And that's how I was with most my classes all my life, I loved learning from art history all the way through philosophy to math and physics. My biggest fear was losing contact with most of those areas when I finally had to choose one to keep studying in college. So the question remained: how to choose?
 
