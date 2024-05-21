@@ -1,4 +1,4 @@
-baseURL = "https://gmcruz.me"
+baseURL = "https://gmelodie.com"
 title = "Gabriel Cruz"
 theme = "hugo-coder"
 languageCode = "en"
@@ -10,6 +10,7 @@ pygmentsCodeFencesGuessSyntax = true
 enableEmoji = true
 # Enable Disqus comments
 # disqusShortname = "yourdiscussshortname"
+builddrafts = true
 
 [params]
 author = "Gabriel Cruz"
