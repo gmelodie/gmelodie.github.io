@@ -1,12 +1,13 @@
 +++
-date = "2024-06-08"
+date = "2024-06-07"
 title = "Total Madness #0: Locks"
 series = ["Total Madness"]
+series_order = 1
 +++
 
 This is the first post in a series about my urges to figure out the dark magics of the computer world. You see, I recently have had some free time on my hands, and I decided to spend it to scratch some itches I've had for as long as I can code (writing an [OS in Rust](https://github.com/gmelodie/cruzos), for instance). As I dove deeper into the dark magics, I discoverd the truth about things I never really liked to assume are true (but did it anyways, for the sake of sanity, at the time).
 
-I don't care anymore about sanity. Let's talk architectures, let's talk memory, let's talk concurrency until we drown in deadlocks, let's find out why there can never be an address 0x0, and yet there's always one. Those who read up beware: this is no post for the sane. Buckle up, for we're going towards Total Madness.
+I don't care anymore about sanity. Let's talk architectures, let's talk memory, let's talk concurrency until we drown in deadlocks, let's find out why there can never be an address 0x0, and yet there's always one. Those who read up beware: this is no place for the sane. Buckle up, for we're going towards Total Madness.
 
 # Episode 0: Locks
 
@@ -154,7 +155,7 @@ Interrupt:
 
 -st wait for them to... Oh wait, what just happened???
 
-The above is a good example of an interrupt. An interrupt is the processor's way of letting you know that there's important priority work that needs to be handled, like a key press on a keyboard. Key presses happen very rarely (even if you type 120 words per minute, that's still very slow for the processor), and so you want to deal with them as soon as possible. Another example of an interrupt is a fetch on the disk for a file like-
+The above is a good example of an interrupt. An interrupt is the processor's way of letting you know that there's important priority work that needs to be handled, like a key press on a keyboard. Key presses happen very rarely (even if you type 300 words per minute, that's still very slow for the processor), and so you want to deal with them as soon as possible. Another example of an interrupt is a fetch on the disk for a file like-
 
 Interrupt:
 > HERE IS YOUR FILE DEAL WITH IT RIGHT NOW IF YOU KNOW WHAT'S BETTER FOR YOU
@@ -229,7 +230,7 @@ fn interrupt() {
 }
 ```
 
-Now my aunt will only brush my cousins's teeth if it can lock, and will just return otherwise (perhaps she'll try again 5 minutes from now). This also solves our problem with my brother from earlier:
+Now my aunt will only brush my cousins' teeth if it can lock, and will just return otherwise (perhaps she'll try again 5 minutes from now, or look for another less gross brush). This also solves our problem with my brother from earlier:
 ```rust
 fn main() {
     let mut tb_lock = ToothbrushLock::new();
@@ -334,16 +335,64 @@ fn try_lock(&mut self) -> bool {
 }
 ```
 
-Obs: in rust, we'd implement *actual* atomics using the `Atomic` types. Check out the Appendix I below for an actual implementation.
+**Obs**: in rust, we'd implement *actual* atomics using the `Atomic` types. Check out the Appendix I below for an actual implementation.
+
+## Async locks
+As of now, we have a decent enough `ToothbrushLock` implementation, but one thing still annoys me: there is no way besides `try_lock()` to ensure that there won't be a deadlock. I mean think about it, if we call lock and someone else has the lock, and we are in a single-threaded computer/processor, there is no way we can recover from that deadlock (besides of course rebooting our machine). One way to overcome this would be to use the async/await model.
+
+
+## Ticket locks
 
 
 
 ## Appendix I: Atomics in rust
-Here's how 
+Here's how to actually implement our async locks in rust, using Atomic types:
+```rust
+use std::sync::atomic::{AtomicBool, Ordering};
 
+struct ToothbrushLock {
+    locked: AtomicBool,
+}
 
+impl ToothbrushLock {
+    fn new() -> Self {
+        Self {
+            locked: AtomicBool::new(false),
+        }
+    }
 
-- Stronger siblings (priority tasks)
+    fn lock(&mut self) {
+        while self.locked.load(Ordering::SeqCst) {}
+        self.locked.store(true, Ordering::SeqCst);
+    }
+
+    fn try_lock(&mut self) -> bool {
+        let expected = false;
+        let new = true;
+        match self
+            .locked
+            .compare_exchange(expected, new, Ordering::SeqCst, Ordering::SeqCst)
+        {
+            Ok(_) => return true,
+            Err(_) => return false,
+        }
+    }
+
+    fn unlock(&mut self) {
+        self.locked.store(false, Ordering::SeqCst);
+    }
+}
+
+fn main() {
+    let mut tb_lock = ToothbrushLock::new();
+    tb_lock.lock();
+    // brush teeth
+    if tb_lock.try_lock() { // nathan locks toothbrush
+         // nathan brushes teeth
+    }
+    tb_lock.unlock();
+}
+```
 
 
 
