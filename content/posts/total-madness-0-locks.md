@@ -337,11 +337,8 @@ fn try_lock(&mut self) -> bool {
 
 **Obs**: in rust, we'd implement *actual* atomics using the `Atomic` types. Check out the Appendix I below for an actual implementation.
 
-## Async locks
-As of now, we have a decent enough `ToothbrushLock` implementation, but one thing still annoys me: there is no way besides `try_lock()` to ensure that there won't be a deadlock. I mean think about it, if we call lock and someone else has the lock, and we are in a single-threaded computer/processor, there is no way we can recover from that deadlock (besides of course rebooting our machine). One way to overcome this would be to use the async/await model.
 
-
-## Ticket locks
+There's also another interesting approach for locks that allows us to entirely ditch the `try_lock` function, but I believe we've had enough madness for today.
 
 
 

@@ -2,10 +2,20 @@
 date = "2024-06-08"
 title = "Total Madness #1: Async/Await"
 series = ["Total Madness"]
+draft = true
 +++
 
 blabla intro
 # Episode 1: Async/Await
+
+## Async locks
+As of now, we have a decent enough `ToothbrushLock` implementation, but one thing still annoys me: there is no way besides `try_lock()` to ensure that there won't be a deadlock. I mean think about it, if we call lock and someone else has the lock, and we are in a single-threaded computer/processor, there is no way we can recover from that deadlock (besides of course rebooting our machine). One way to overcome this would be to use the async/await model.
+
+
+## Ticket locks
+## Scheduling
+## Ticket Scheduling
+
 
 blabla
 ```rust
