@@ -515,7 +515,7 @@ pub enum Poll<T> {
 }
 ```
 
-In case this is the first time you're hearing about async/futures/polling, don't stress too much about it. If this looks like a lot to take in, it's because it is! Take your time, come back later if you need to. Also, it might be a good idea to code along so you get a better feel of the issues and limitations we're facing. It might be hard to properly understand things like the need for `Poll` and `Future` (and even traits) without actually coding yourself.
+If this is the first you're hearing about async/futures/polling it might be a lot to take in -- because it is! Take your time, come back later if you need to. Also, it might be a good idea to code along to get a better feel for the issues we're facing. It can be hard to understand things like the need for `Poll` and `Future` (and even traits) without actually coding yourself.
 
 \*clears throat\*
 
@@ -524,7 +524,202 @@ Let's continue.
 
 ## An async implementation of our executor
 
-Now that we know that `Poll` and `Future` exist, let's try to use them to solve our problem
+Now that we know that `Poll` and `Future` exist, let's try to use them to solve our problem. First, we'll change our `Task` struct to hold a `Future` instead of a function pointer.
+
+```rust
+pub struct Task {
+    name: String,
+    done: bool,
+    future: Pin<Box<dyn Future<Output = String>>>,
+}
+```
+And let's have our `new()` function take in a future as well:
+```rust
+pub fn new(name: String, future: impl Future<Output = String> + 'static) -> Self {
+    Self {
+        name,
+        done: false,
+        future: Box::pin(future),
+    }
+}
+```
+Again, we need to do that because we want our function to be flexible. A function pointer has a strict function signature (like `fn(usize)`, which *needs* to be a function that takes exactly one `usize` and returns "nothing"). In other words, all `Task`s will need to have the same function signature, while with `Future`s that's not the case.
+
+
+**Obs**: Let's accept the concecpts of "nothing", `Pin`, `Box` and the `dyn` keyword as things we need to make our code work. We can go into detail about why those are important in a later post.
+
+
+Now we can write a `poll` method for our `Task` struct:
+```rust
+pub fn poll(&mut self) -> String {
+    let binding = futures::task::noop_waker();
+    let mut cx = Context::from_waker(&binding);
+
+    match self.future.as_mut().poll(&mut cx) {
+        Poll::Ready(output) => {
+            self.done = true;
+            output
+        }
+        Poll::Pending => "Task not finished".to_string(),
+    }
+}
+```
+Our `poll()` method in turn calls `poll()` on a mutable reference to our `future` (hence the `.as_mut()` there). Another thing to note is that the `poll()` method on `Future`s takes in a `Context`, but as we don't need to use this now I just created a placeholder one that holds no information whatsoever by creating a `noop_waker` that will in turn be used to instantiate a `Context`.
+
+
+Now for the important part: we do a `match` (which is exactly like a switch/case or an if/else clause) and, if the return result of the `poll()` function is `Poll::Ready(output)` we set `self.done = true`, take that output and return it ourselves. Otherwise, if the return result is `Poll::Pending` we return a string saying we're not done.
+
+
+In our main function things are pretty much the same:
+```rust
+fn main() {
+    let mut executor = Executor::new();
+
+    while executor.tasks.len() != 0 {
+        for task in executor.tasks.iter_mut() {
+            task.poll();
+        }
+        // clean up tasks that are done
+        executor.tasks.retain(|task| !task.is_done());
+    }
+}
+```
+Only that we change `task.run()` to `task.poll()`. But now you may be thinking : "Wait what??? We went through all that work for *this*?! This is outrageous! This is imbecillic!!". Well, not quite. You see, there's one thing missing in our `main()`, can you spot what it is? I'll give you a hint, it's actually three things. We're missing... tasks! We never spawn any! How about we do that:
+
+```rust
+fn main() {
+    let mut executor = Executor::new();
+
+    let task1 = Task::new("first_task".to_string(), future);
+    executor.tasks.push(task1);
+
+    while executor.tasks.len() != 0 {
+        for task in executor.tasks.iter_mut() {
+            task.poll();
+        }
+        // clean up tasks that are done
+        executor.tasks.retain(|task| !task.is_done());
+    }
+}
+```
+
+Okay, now we have a task on our executor, but trying to run this code gives us:
+```bash
+➜  episode-1-async git:(main) ✗ cargo run                                       <<<
+   Compiling episode-1-async v0.1.0
+error[E0425]: cannot find value `future` in this scope
+  --> src/main.rs:10:53
+   |
+10 |     let task1 = Task::new("first_task".to_string(), future);
+   |                                                     ^^^^^^ not found in this scope
+
+For more information about this error, try `rustc --explain E0425`.
+error: could not compile `episode-1-async` (bin "default") due to 1 previous error
+```
+
+We never specify a `future`! Come to think of it, we haven't talked about how to **create** a future. Here's how: imagine we have a function we want the task to run. All we need to do is add the `async` keyword to that function and some `await` statements inside it to tell the compiler where it should return `Poll::Pending` (aka saying "I'm done working a little"), like so:
+```rust
+// new!
+async fn brush_teeth(times: usize) -> String {
+    for i in 0..times {
+        println!("Brushing teeth {}", i);
+    }
+    return "Done".to_string();
+}
+
+fn main() {
+    let mut executor = Executor::new();
+
+    let future = brush_teeth(10); // new!
+    let task1 = Task::new("first_task".to_string(), future);
+    executor.tasks.push(task1);
+
+    while executor.tasks.len() != 0 {
+        for task in executor.tasks.iter_mut() {
+            task.poll();
+        }
+        // clean up tasks that are done
+        executor.tasks.retain(|task| !task.is_done());
+    }
+}
+```
+
+This code runs just fine, but it doesn't quite do what we want yet. We need a final touch, can you figure out what it is? Here's a hint, try to figure out what the output of the following code will be versus what it *should* be:
+
+```rust
+async fn brush_teeth(times: usize) -> String {
+    for i in 0..times {
+        println!("Brushing teeth {}", i);
+    }
+    return "Done".to_string();
+}
+
+fn main() {
+    let mut executor = Executor::new();
+
+    let future = brush_teeth(10);
+    let task1 = Task::new("first_task".to_string(), future);
+    executor.tasks.push(task1);
+
+    while executor.tasks.len() != 0 {
+        for task in executor.tasks.iter_mut() {
+            task.poll();
+        }
+        println!("Went through all tasks once"); // new!
+
+        // clean up tasks that are done
+        executor.tasks.retain(|task| !task.is_done());
+    }
+}
+```
+The output is:
+```
+Brushing teeth 0
+Brushing teeth 1
+Brushing teeth 2
+Brushing teeth 3
+Brushing teeth 4
+Brushing teeth 5
+Brushing teeth 6
+Brushing teeth 7
+Brushing teeth 8
+Brushing teeth 9
+Went through all tasks once
+```
+
+But it should be:
+```
+Brushing teeth 0
+Went through all tasks once
+Brushing teeth 1
+Went through all tasks once
+Brushing teeth 2
+Went through all tasks once
+Brushing teeth 3
+Went through all tasks once
+Brushing teeth 4
+Went through all tasks once
+Brushing teeth 5
+Went through all tasks once
+Brushing teeth 6
+Went through all tasks once
+Brushing teeth 7
+Went through all tasks once
+Brushing teeth 8
+Went through all tasks once
+Brushing teeth 9
+Went through all tasks once
+```
+
+The problem is that we're not `await`ing inside our `async fn brush_teeth()`. But what should we await? Well, if `await` is the way we tell our executor we are done with a piece of our work, then we want to `await` every time the `for` loop runs:
+```rust
+async fn brush_teeth(times: usize) -> String {
+    for i in 0..times {
+        println!("Brushing teeth {}", i);
+    }
+    return "Done".to_string();
+}
+```
 
 
 ## Async locks
