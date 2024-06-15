@@ -605,7 +605,7 @@ fn main() {
 
 Okay, now we have a task on our executor, but trying to run this code gives us:
 ```bash
-➜  episode-1-async git:(main) ✗ cargo run                                       <<<
+➜  cargo run                                       <<<
    Compiling episode-1-async v0.1.0
 error[E0425]: cannot find value `future` in this scope
   --> src/main.rs:10:53
@@ -711,32 +711,111 @@ Brushing teeth 9
 Went through all tasks once
 ```
 
-The problem is that we're not `await`ing inside our `async fn brush_teeth()`. But what should we await? Well, if `await` is the way we tell our executor we are done with a piece of our work, then we want to `await` every time the `for` loop runs:
+One way to let our executor know we're done running a little is to use the `pending()` function from the `futures` crate. A crate is a library in Rust. A library is a collection of utilities (functions, structs, traits, enums, etc.) you can `use` in your code. Here's how we'll use this:
+
 ```rust
+use futures::pending;
+
 async fn brush_teeth(times: usize) -> String {
     for i in 0..times {
         println!("Brushing teeth {}", i);
+        pending!(); // new!
     }
     return "Done".to_string();
 }
 ```
 
+The `use futures::pending` line imports the `pending!()` macro. A macro is used like a function, so we can see it as that (see **Appendix I** for a better explanation of macros). Another way of having `brush_teeth()` return after "a bit' of work has been done would be to have a type `BrushTeethFuture` and implement the `Future` trait on it (`impl Future for BrushTeethFuture`) aka implement the `poll()` function which would return `Poll::Pending` after a single brush. In fact, that's a good exercise for the reader: try to implement a `struct BrushTeethFuture` that implements the `Future` trait, put it inside a `Task` and have the `Executor` run it and get the expected result.
 
-## Async locks
-As of now, we have a decent enough `ToothbrushLock` implementation, but one thing still annoys me: there is no way besides `try_lock()` to ensure that there won't be a deadlock. I mean think about it, if we call lock and someone else has the lock, and we are in a single-threaded computer/processor, there is no way we can recover from that deadlock (besides of course rebooting our machine). One way to overcome this would be to use the async/await model.
-
-
-## Ticket locks
-## Scheduling
-## Ticket Scheduling
-
-
-blabla
+Now let's unfold what the `pending!()` macro actually does. Here's the [source code](https://docs.rs/futures-util/0.3.30/src/futures_util/async_await/pending.rs.html) for it:
 ```rust
-struct ToothbrushLock {
-    locked: bool,
+use core::pin::Pin;
+use futures_core::future::Future;
+use futures_core::task::{Context, Poll};
+
+/// A macro which yields to the event loop once.
+///
+/// This is equivalent to returning [`Poll::Pending`](futures_core::task::Poll)
+/// from a [`Future::poll`](futures_core::future::Future::poll) implementation.
+/// Similarly, when using this macro, it must be ensured that [`wake`](std::task::Waker::wake)
+/// is called somewhere when further progress can be made.
+///
+/// This macro is only usable inside of async functions, closures, and blocks.
+/// It is also gated behind the `async-await` feature of this library, which is
+/// activated by default.
+#[macro_export]
+macro_rules! pending {
+    () => {
+        $crate::__private::async_await::pending_once().await
+    };
+}
+
+#[doc(hidden)]
+pub fn pending_once() -> PendingOnce {
+    PendingOnce { is_ready: false }
+}
+
+#[allow(missing_debug_implementations)]
+#[doc(hidden)]
+pub struct PendingOnce {
+    is_ready: bool,
+}
+
+impl Future for PendingOnce {
+    type Output = ();
+    fn poll(mut self: Pin<&mut Self>, _: &mut Context<'_>) -> Poll<Self::Output> {
+        if self.is_ready {
+            Poll::Ready(())
+        } else {
+            self.is_ready = true;
+            Poll::Pending
+        }
+    }
 }
 ```
+Phew! This may look like a mess, but it's actually pretty simple. Here's the breakdown:
+1. There's a struct `PendingOnce` that holds an `is_ready` boolean field.
+2. The `Future` trait is implemented for `PendingOnce`.
+3. When `poll()` is called on `PendingOnce`:
+    - If `is_ready == false`: set it to `true` and return `Poll::Pending`.
+    - If `is_ready == true`: return `Poll::Ready(())`.
+4. There's a function `pending_once()` that returns an instance of the `PendingOnce` struct with the `is_ready` field set to `false`. Much like our `Task::new()` and `Executor::new()` functions that creates initialized structs.
+
+
+What all of this effectively does is create a type (a `struct`) that returns `Poll::Pending` when first `poll()`ing, and after that it'll always return `Poll::Ready` (hence the name `PendingOnce`). The `pending!()` macro calls `pending_once().await`, which will make the future run. That's all `await` is.
+
+
+And voilà! Here's our output now:
+```
+Brushing teeth 0
+Went through all tasks once
+Brushing teeth 1
+Went through all tasks once
+Brushing teeth 2
+Went through all tasks once
+Brushing teeth 3
+Went through all tasks once
+Brushing teeth 4
+Went through all tasks once
+Brushing teeth 5
+Went through all tasks once
+Brushing teeth 6
+Went through all tasks once
+Brushing teeth 7
+Went through all tasks once
+Brushing teeth 8
+Went through all tasks once
+Brushing teeth 9
+Went through all tasks once
+Went through all tasks once
+```
+
+As a final exercise, try to figure out why `Went through all tasks once` appears twice in the end.
+
+
+## Appendix I: Rust Macros
+
+
 
 ---
 Thank you for reading! You can find the full source code for this episode at https://github.com/gmelodie/total-madness.
