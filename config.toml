@@ -4,9 +4,12 @@ theme = "hugo-coder"
 languageCode = "en"
 defaultContentLanguage = "en"
 paginate = 20
-pygmentsStyle = "bw"
+
+pygmentsStyle = "gruvbox"
 pygmentsCodeFences = true
 pygmentsCodeFencesGuessSyntax = true
+noClasses = false  # Use CSS classes for syntax highlighting
+
 enableEmoji = true
 # Enable Disqus comments
 # disqusShortname = "yourdiscussshortname"
