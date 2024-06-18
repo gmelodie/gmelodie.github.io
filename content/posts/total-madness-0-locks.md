@@ -1,5 +1,5 @@
 +++
-date = "2024-06-07"
+date = "2024-06-18"
 title = "Total Madness #0: Locks"
 series = ["Total Madness"]
 series_order = 1
@@ -323,15 +323,15 @@ fn try_lock(&mut self) -> bool {
 }
 ```
 
-**Obs**: in rust, we'd implement *actual* atomics using the `Atomic` types. Check out the Appendix I below for an actual implementation.
+**Obs**: in rust, we'd implement *actual* atomics using the `Atomic` types. Check out the [Appendix I](#appendix-i-atomics-in-rust) below for an actual implementation.
 
 
-There's also another interesting approach for locks that allows us to entirely ditch the `try_lock` function, but I believe we've had enough madness for today.
+There's also another interesting approach for locks that allows us to entirely ditch the `try_lock` function, but I believe we've had enough madness for today. The next post will prepare us with the concepts we need to understand these locks. Then we'll move on to implement them on the third post of the series.
 
 
 
 ## Appendix I: Atomics in rust
-Here's how to actually implement our async locks in rust, using Atomic types:
+Here's how to actually implement our locks in rust, using Atomic types:
 ```rust
 use std::sync::atomic::{AtomicBool, Ordering};
 
