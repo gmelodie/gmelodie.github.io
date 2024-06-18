@@ -1,5 +1,5 @@
 +++
-date = "2024-06-18"
+date = "2024-06-17"
 title = "Total Madness #0: Locks"
 series = ["Total Madness"]
 series_order = 1
