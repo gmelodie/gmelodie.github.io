@@ -846,11 +846,35 @@ As a final exercise, try to figure out why `Went through all tasks once` appears
 
 
 ## Appendix I: Rust Macros
+Macros are processed before the actual code is compiled, and thus is an effective way to include and alter source code before compilation. On our `pending_once` example, the `pending!()` macro is defined as follows:
+```rust
+#[macro_export]
+macro_rules! pending {
+    () => {
+        $crate::__private::async_await::pending_once().await
+    };
+}
+```
 
+This roughly means that when we call it in our code, the compile will replace `pending!()` with `futures::__private::async_await::pending_once().await`. So, when compiled, our code *actually* looks like this:
 
+```rust
+use futures::pending;
+
+async fn brush_teeth(times: usize) -> String {
+    for i in 0..times {
+        println!("Brushing teeth {}", i);
+        futures::__private::async_await::pending_once().await;
+    }
+    return "Done".to_string(); // I'm done with all the work
+}
+```
+
+In this case the macro is a mere and simple convenience, but they can be incredibly powerful. For more information check out [The Little Book of Rust Macros](https://veykril.github.io/tlborm/).
 
 ---
 Thank you for reading! You can find the full source code for this episode at https://github.com/gmelodie/total-madness.
 
 ## References
 - [Operating Systems: Three Easy Pieces](https://pages.cs.wisc.edu/~remzi/OSTEP/threads-locks.pdf): I should note that I intentionally tried to mimic the writing style of this book, in which you make the reader stop and think before giving the answers. Huge shoutouts!
+- [The Little Book of Rust Macros](https://veykril.github.io/tlborm/)
