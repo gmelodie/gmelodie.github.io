@@ -1,5 +1,5 @@
 +++
-date = "2024-06-18"
+date = "2024-07-12"
 title = "Total Madness #1: Async/Await"
 series = ["Total Madness"]
 +++
