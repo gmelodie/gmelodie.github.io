@@ -5,13 +5,28 @@ title = "Total Madness #1: Async/Await"
 series = ["Total Madness"]
 +++
 
-On the last episode we explored a bit of the world of concurrency talking about locks. I mean, we didn't use that word expicitly, but effectively that's what we were talking about. Today we'll explore a crucial concurrency model: async/await.
+On the last episode (which is also the first episode, lol) we explored a bit of the world of concurrency talking about locks. I mean, we didn't use the word "concurrent" expicitly, but effectively that's what we were talking about. Today we'll explore a crucial concurrency model: async/await.
 
-Oh and don't think I forgot about the promise I made about async locks, they're coming on next post. First, though, we need to understand why async/await is even a thing, and how it *actually* works.
+Oh and don't you think I forgot about the promise I made about async locks, they're coming on next post. First, though, we need to understand why async/await is even a thing, and how it *actually* works.
 
 # Episode 1: Async/Await
 
-On the last episode I used a gross example to illustrate what happens on a computer when different *tasks* are competing for resources. The word *task* here is an important one. We're talking about theoretical concepts, not what one programming language calls `Task` (and another would call `Process`, or `Thread`, or anything else). For us now, a **task** is simply a sequence of things a computer will do like add 1 to a variable or load a file from disk. For example, `task1` could be updating a file while `task2` would be printing to the screen.
+You might remember the gross example we used to illustrate what happens on a computer when different *tasks* are competing for resources. Here's a refresher:
+
+> Two siblings want to use the toothbrush they share, but obviously only one of them can use it at a time. The childish, sibling-like thing to do is to say “I’m first!” before than the other person. The rule is simple: whoever starts saying “I’m first” first, gets to use it.
+
+Now the word *task* here is an important, deliberate choice. We're talking about theoretical concepts, not what one programming language calls `Task` (and another would call `Process`, or `Thread`, or anything else). For us now, a task is simply a sequence of things a computer will do like add 1 to a variable or load a file from disk. For example, `task1` could be updating a file while `task2` would be printing to the screen. Here are the rough steps each task would need to accomplish:
+```
+Task1
+1. task1 loads file from disk to memory (RAM)
+2. task1 writes to file in memory
+3. task1 saves file from memory to disk
+
+Task2
+1. task2 loads matrix of pixels from disk
+2. task2 updates matrix of pixels
+3. task2 writes matrix of pixes to screen
+```
 
 
 Because we want our computers to do a lot of things at once but have limited processing units (in our theoretical computer, we only have one processing unit!), clever computer people created the concept of **multitasking**, where tasks run intermitently to give the users the *impression* that everything is happening at once. Behind the scenes, however, the computer jiggles tasks like crazy to create this illusion. In our `task1` and `task2` examples from before, the sequence of instructions running could look like this:
@@ -26,12 +41,13 @@ Because we want our computers to do a lot of things at once but have limited pro
 ```
 
 
-As you can see, the tasks are broken down in pieces and are jiggled by the processing unit. How would you design an algorithm to do that given a list of tasks.
+As you can see, the tasks are broken in pieces and jiggled by the processing unit. How would you design an algorithm to do that given a list of tasks?
+
 
 ## Tasks
 Ready? A first, naïve idea, is farily straightforward: we use a `queue` of tasks being run. We cycle through this list and run a part of each task for a little bit of time. Then, when we reach the end of the queue, we go back to the begining and do it all over again.
 
-Seems simple enough, but a ton of issues can stem from this approach, as well as a ton of ways to solve them. Let's implement a simple task runner following this idea. In case you're new to the posts, the examples are in Rust, but you don't need to know Rust to follow along, the code is very self-explanatory and I'll explain the non-trivial parts so that anyone with some programming experience can understand them. And plus you might even pick up a new language along the way!
+Seems simple enough, but a ton of issues can stem from this approach, as well as a ton of ways to solve them. Let's implement a simple task runner following this idea. In case you're new to the posts, the examples are in Rust, but you don't need to know Rust to follow along, the code is very self-explanatory and I'll explain the non-trivial parts so that anyone with some programming experience can understand them.
 
 So I'm thinking that we'll eventually need to have a struct holding important information of our executor, but I have no idea what that is at this point, so I'll make an empty struct for now and focus on the methods I want it to have.
 
@@ -48,7 +64,7 @@ fn main() {
     let mut executor = Executor::new();
 }
 ```
-Okay, we have a struct, a `new()` function/method that returns a new instance of the struct, and a way to call it. The Rust compiler complains of course: "You're not doing anything!", it says. The compiler is right, so let's do something. But, before we do anything, let's also create a `Task` type that our executor will hold in the queue:
+Okay, we have a struct, an associated `new()` function/method that returns a new instance of the struct, and a way to call it. The Rust compiler complains of course: "You're not doing anything!", it says. The compiler is right, so let's do something. But, before we do anything, let's also create a `Task` type that our executor will hold in the queue:
 
 ```rust
 // new!
@@ -88,7 +104,7 @@ impl Task {
 
 // ... rest of code
 ```
-Now instead of having only the `new()` method, we also have `run()`, which takes the `Task` it refers to as a mutable reference (`&mut self`) because it will most likely need to change somethin in the `Task` struct when `run()`ing. To run our tasks, we'll add a `for` loop that goes from start to finish of the list, calls `run()` on each task, and do that for as long as we have tasks to run:
+`run()` takes the `Task` it refers to as a mutable reference (hence the `&mut self` as the first argument), this is because it will need to change somethin in the `Task` struct when `run()`ing. To run our tasks, we'll add a `for` loop that goes from start to finish of the list, calls `run()` on each task, and do that for as long as we have tasks to run:
 ```rust
 // ... rest of code
 
@@ -165,7 +181,7 @@ fn main() {
 }
 ```
 
-Wohoooo! Our code does *something*! But if you run the code above you'll see that, although it does something, it also never stops doing it. Here's a piece of the output:
+Wohoooo! Our code does *something*! Now the problem is that it never stops "doing *something*". Here's a piece of the output:
 ```
 Hi from task: task1
 Hi from task: task2
@@ -181,7 +197,7 @@ Hi from task: task2
 ...
 ```
 
-What is happening here? Our code seems to be running forever! Going back to our original idea: the plan was to have each task run for a bit, then circle back when we got to the end of the task queue, but we also need two more things: (1) a way for the task to signal it's done and (2) remove all tasks that are done before circling back to the begining of the queue.
+What is happening here? Going back to our original idea: the plan was to have each task run for a bit, then circle back when we got to the end of the task queue, but we also need two more things: (1) a way for the task to signal it's done and (2) remove all tasks that are done before circling back to the begining of the queue.
 
 For the first issue the solution is easy:
 1. add a `bool` field called `done` to the `Task` struct
@@ -306,10 +322,9 @@ Okay, but is this really what we wanted? Are we missing something? Think about i
 ## Async
 
 Let's review what we wanted in the begining:
-> Ready? A first, naïve idea, is farily straightforward: we use a `queue` of tasks being run. We cycle through this list and run a part of each task for a little bit of time. Then, when we reach the end of the queue, we go back to the begining and do it all over again.
+> A first, naïve idea, is farily straightforward: we use a `queue` of tasks being run. We cycle through this list and run a part of each task for a little bit of time. Then, when we reach the end of the queue, we go back to the begining and do it all over again.
 
  We're missing the part where we run each task for **a little bit of time**. The way it is now, our implementation runs each task to completion before moving on, but that's not what we want. What if one of the tasks took a long time to run, while the next two were super quick? The two tasks would **starve** waiting for the processor to run them. To fix that, we'll first make our example a bit more complicated. Here are the new tasks, see if you can understand how they work (I'll explain below):
-
 
 
 ```rust
@@ -511,7 +526,7 @@ fn main() {
 }
 ```
 
-This is good because not only `Person`s can be `Siblings`, but any type that implements the `annoy` function. By our definition, any type `MyType` that *implements* all the functions specified in Sibling (`impl Sibling for MyType`) is a Sibling. This is very useful especially when we want to create functions that take or return different types. Remember our problem of `Task` receiving functions of both `fn(usize)` and `fn(usize, usize)`? We could just have it receive a `Future` and it'd be able to receive different types, as long as they're `Future`s.
+This is good because not only `Person`s can be `Siblings`, but any type that implements the `annoy` function. By our definition, any type `MyType` that *implements* all the functions specified in Sibling (`impl Sibling for MyType`) **is** a Sibling. This is very useful especially when we want to create functions that take or return different types. Remember our problem of `Task` receiving functions of both `fn(usize)` and `fn(usize, usize)`? We could just have it receive a `Future` and it'd be able to receive different types, as long as they're `Future`s.
 
 
 Now let's go back to the `Future` trait:
@@ -574,10 +589,10 @@ pub fn new(name: String, future: impl Future<Output = String> + 'static) -> Self
     }
 }
 ```
-Again, we need to do that because we want our function to be flexible. A function pointer has a strict function signature (like `fn(usize)`, which *needs* to be a function that takes exactly one `usize` and returns "nothing"). In other words, all `Task`s will need to have the same function signature, while with `Future`s that's not the case.
+Again, we need to do that because we want our function to be flexible. A function pointer has a strict function signature (like `fn(usize)`, which *needs* to be a function that takes exactly one `usize` and returns **"nothing"**). In other words, all `Task`s will need to have the same function signature, while with `Future`s that's not the case.
 
 
-**Obs**: Let's accept the concecpts of "nothing", `Pin`, `Box` and the `dyn` keyword as things we need to have in order for our code work. We can go into detail about why those are important in a later post.
+**Obs**: Let's accept the concecpts of **"nothing"**, `Pin`, `Box` and the `dyn` keyword as things we need to have in order for our code work. We can go into detail about why those are important in a later post.
 
 
 Now we can write a `poll` method for our `Task` struct:
@@ -677,7 +692,7 @@ fn main() {
 }
 ```
 
-This code runs just fine, but it doesn't quite do what we want yet. We need a final touch, can you figure out what it is? Here's a hint, try to figure out what the output of the following code will be versus what it *should* be:
+This code runs just fine, but it doesn't quite do what we want yet. We need a final touch, can you figure out what it is? Hint: try to figure out what the output of the following code will be versus what it *should* be:
 
 ```rust
 async fn brush_teeth(times: usize) -> String {
@@ -747,14 +762,14 @@ Went through all tasks once
 One way to let our executor know we're done running a little is to use the `pending!()` macro from the `futures` crate. A crate is a library in Rust. A library is a collection of utilities (functions, structs, traits, enums, etc.) you can `use` in your code. Here's how we'll use this:
 
 ```rust
-use futures::pending;
+use futures::pending; // import the pending!() macro
 
 async fn brush_teeth(times: usize) -> String {
     for i in 0..times {
         println!("Brushing teeth {}", i);
-        pending!(); // new: I'm done with "a little work"
+        pending!(); // new: I'm done with "a little work" (aka return Poll::Pending)
     }
-    return "Done".to_string(); // I'm done with all the work
+    return "Done".to_string(); // I'm done with all the work (aka return Poll::Ready("Done")
 }
 ```
 
