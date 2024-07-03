@@ -6,4 +6,6 @@ Obs: when cloning also clone the hugo template (it's a git submodule) with
 git submodule update --init --recursive
 ```
 
-Run it locally with `hugo server`
+Run it locally with `hugo serve --buildFuture`
+
+Obs: add `publish = "false"` or `publish = "true"` to control publishing of posts.
