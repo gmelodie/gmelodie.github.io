@@ -1,4 +1,5 @@
 +++
+public = "true"
 date = "2024-07-03"
 title = "Total Madness #0: Locks"
 series = ["Total Madness"]
