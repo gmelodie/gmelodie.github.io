@@ -860,6 +860,156 @@ Went through all tasks once
 
 As a final exercise, try to figure out why `Went through all tasks once` appears twice in the end.
 
+Now of course there is one last thing for us to do: solve our original toothbrushing problem. For that all we need to do is add some tasks. Here's how that would look like:
+
+```rust
+fn main() {
+    let mut executor = Executor::new();
+
+    let task_gabe = Task::new("gabe".to_string(), brush_teeth(20));     // new: gabe + brush_teeth(20)
+    let task_nat = Task::new("nat".to_string(), brush_teeth(30));       // new: nat + brush_teeth(30)
+    let task_fefe = Task::new("fefe".to_string(), brush_teeth(100));    // new: fefe + brush_teeth(100)
+
+    // new: push tasks
+    executor.tasks.push(task_gabe);
+    executor.tasks.push(task_nat);
+    executor.tasks.push(task_fefe);
+
+    while executor.tasks.len() != 0 {
+        for task in executor.tasks.iter_mut() {
+            print!("{}: ", task.name); // new: print task.name
+            task.poll();
+        }
+        println!("--- Went through all tasks once"); // new: "--- " for better readability
+
+        // clean up tasks that are done
+        executor.tasks.retain(|task| !task.is_done());
+    }
+}
+```
+
+Here's the output for that code. Note that the executor cycles through the three tasks, but as long as `gabe` finishes, then only `nat` and `fefe` are alternating, until when there's only `fefe` left and it runs forefer:
+
+```
+gabe: Brushing teeth 0
+nat: Brushing teeth 0
+fefe: Brushing teeth 0
+--- Went through all tasks once
+gabe: Brushing teeth 1
+nat: Brushing teeth 1
+fefe: Brushing teeth 1
+--- Went through all tasks once
+gabe: Brushing teeth 2
+nat: Brushing teeth 2
+fefe: Brushing teeth 2
+--- Went through all tasks once
+gabe: Brushing teeth 3
+nat: Brushing teeth 3
+fefe: Brushing teeth 3
+--- Went through all tasks once
+gabe: Brushing teeth 4
+nat: Brushing teeth 4
+fefe: Brushing teeth 4
+--- Went through all tasks once
+gabe: Brushing teeth 5
+nat: Brushing teeth 5
+fefe: Brushing teeth 5
+--- Went through all tasks once
+gabe: Brushing teeth 6
+nat: Brushing teeth 6
+fefe: Brushing teeth 6
+--- Went through all tasks once
+gabe: Brushing teeth 7
+nat: Brushing teeth 7
+fefe: Brushing teeth 7
+--- Went through all tasks once
+gabe: Brushing teeth 8
+nat: Brushing teeth 8
+fefe: Brushing teeth 8
+--- Went through all tasks once
+gabe: Brushing teeth 9
+nat: Brushing teeth 9
+fefe: Brushing teeth 9
+--- Went through all tasks once
+gabe: Brushing teeth 10
+nat: Brushing teeth 10
+fefe: Brushing teeth 10
+--- Went through all tasks once
+gabe: Brushing teeth 11
+nat: Brushing teeth 11
+fefe: Brushing teeth 11
+--- Went through all tasks once
+gabe: Brushing teeth 12
+nat: Brushing teeth 12
+fefe: Brushing teeth 12
+--- Went through all tasks once
+gabe: Brushing teeth 13
+nat: Brushing teeth 13
+fefe: Brushing teeth 13
+--- Went through all tasks once
+gabe: Brushing teeth 14
+nat: Brushing teeth 14
+fefe: Brushing teeth 14
+--- Went through all tasks once
+gabe: Brushing teeth 15
+nat: Brushing teeth 15
+fefe: Brushing teeth 15
+--- Went through all tasks once
+gabe: Brushing teeth 16
+nat: Brushing teeth 16
+fefe: Brushing teeth 16
+--- Went through all tasks once
+gabe: Brushing teeth 17
+nat: Brushing teeth 17
+fefe: Brushing teeth 17
+--- Went through all tasks once
+gabe: Brushing teeth 18
+nat: Brushing teeth 18
+fefe: Brushing teeth 18
+--- Went through all tasks once
+gabe: Brushing teeth 19
+nat: Brushing teeth 19
+fefe: Brushing teeth 19
+--- Went through all tasks once
+gabe: nat: Brushing teeth 20
+fefe: Brushing teeth 20
+--- Went through all tasks once
+nat: Brushing teeth 21
+fefe: Brushing teeth 21
+--- Went through all tasks once
+nat: Brushing teeth 22
+fefe: Brushing teeth 22
+--- Went through all tasks once
+nat: Brushing teeth 23
+fefe: Brushing teeth 23
+--- Went through all tasks once
+nat: Brushing teeth 24
+fefe: Brushing teeth 24
+--- Went through all tasks once
+nat: Brushing teeth 25
+fefe: Brushing teeth 25
+--- Went through all tasks once
+nat: Brushing teeth 26
+fefe: Brushing teeth 26
+--- Went through all tasks once
+nat: Brushing teeth 27
+fefe: Brushing teeth 27
+--- Went through all tasks once
+nat: Brushing teeth 28
+fefe: Brushing teeth 28
+--- Went through all tasks once
+nat: Brushing teeth 29
+fefe: Brushing teeth 29
+--- Went through all tasks once
+nat: fefe: Brushing teeth 30
+--- Went through all tasks once
+fefe: Brushing teeth 31
+--- Went through all tasks once
+fefe: Brushing teeth 32
+--- Went through all tasks once
+...
+```
+
 
 ## Appendix I: Rust Macros
 Macros are processed before the actual code is compiled, and thus is an effective way to include and alter source code before compilation. On our `pending_once` example, the `pending!()` macro is defined as follows:
