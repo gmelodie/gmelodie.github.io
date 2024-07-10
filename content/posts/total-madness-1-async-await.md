@@ -1,12 +1,19 @@
 +++
-public = "false"
-date = "2024-07-15"
+public = "true"
+date = "2024-07-10"
 title = "Total Madness #1: Async/Await"
 series = ["Total Madness"]
 +++
 
 
-In the last episode (which is also the first episode, lol) we explored a bit of the world of concurrency by talking about locks. I mean, we didn't use the word "concurrent" explicitly, but effectively that's what we were talking about. Today we'll explore a crucial concurrency model: async/await.
+In the last episode (which is also the first episode, lol) we explored a bit of the world of concurrency by talking about locks. I mean, we didn't use the word "concurrent" explicitly, but effectively that's what we were talking about.
+
+> Concurrency means multiple computations are happening at the same time.
+>
+> [MIT](https://web.mit.edu/6.005/www/fa14/classes/17-concurrency/)
+
+
+Today we'll explore a crucial concurrency model: async/await.
 Oh and don't you think I forgot about the promise I made about async locks, they're coming in the next post. First, though, we need to understand why async/await is even a thing, and how it *actually* works.
 
 # Episode 1: Async/Await
@@ -46,7 +53,7 @@ As you can see, the tasks are broken into pieces and jiggled by the processing u
 ## Tasks
 Ready? A first, naïve idea, is fairly straightforward: we use a `queue` of tasks being run. We cycle through this list and run a part of each task for a little bit of time. Then, when we reach the end of the queue, we go back to the beginning and do it all over again.
 
-Seems simple enough, but a ton of issues can stem from this approach, as well as a ton of ways to solve them. Let's implement a simple task runner following this idea. In case you're new to the posts, the examples are in Rust, but you don't need to know Rust to follow along, the code is very self-explanatory and I'll explain the non-trivial parts so that anyone with some programming experience can understand them.
+Seems simple enough, but a ton of issues can stem from this approach, as well as a ton of ways to solve them. Let's implement a simple task runner following this idea. In case you're new to the posts, the examples are in Rust, but I'll explain the non-trivial parts.
 
 So I'm thinking that we'll eventually need to have a struct holding important information about our executor, but I have no idea what that is at this point, so I'll make an empty struct for now and focus on the methods I want it to have.
 
@@ -93,7 +100,6 @@ fn main() {
 ```
 
 I added a `Task` struct and a field on our executor to hold a list of tasks (in a `Vec`). But still, we're not really doing anything with it. Our task should also be able to `run()`, so let's add a method for this:
-`run()` takes the `Task` it refers to as a mutable reference (hence the `&mut self` as the first argument), this is because it will need to change something in the `Task` struct when `run()`ing. To run our tasks, we'll add a `for` loop that goes from start to finish of the list, calls `run()` on each task, and do that for as long as we have tasks to run:
 
 ```rust
 impl Task {
@@ -106,8 +112,8 @@ impl Task {
 
 // ... rest of code
 ```
-
 `run()` takes the `Task` it refers to as a mutable reference (hence the `&mut self` as the first argument), this is because it will need to change something in the `Task` struct when `run()`ing. To run our tasks, we'll add a `for` loop that goes from start to finish of the list, calls `run()` on each task, and do that for as long as we have tasks to run:
+
 
 ```rust
 // ... rest of code
@@ -187,7 +193,7 @@ fn main() {
 }
 ```
 
-Wohoooo! Our code does *something*! Now the problem is that it never stops "doing *something*". Here's a piece of the output:
+Wohoooo! Our code does *something*! Now the problem is that it never stops "*doing* something". Here's a part of the output:
 
 ```
 Hi from task: task1
@@ -333,7 +339,7 @@ Okay, but is this really what we wanted? Are we missing something? Think about i
 Let's review what we wanted in the beginning:
 > A first, naïve idea, is fairly straightforward: we use a `queue` of tasks being run. We cycle through this list and run a part of each task for a little bit of time. Then, when we reach the end of the queue, we go back to the beginning and do it all over again.
 
- We're missing the part where we run each task for **a little bit of time**. The way it is now, our implementation runs each task to completion before moving on, but that's not what we want. What if one of the tasks took a long time to run, while the next two were super quick? The two tasks would **starve** waiting for the processor to run them. To fix that, we'll first make our example a bit more complicated. Here are the new tasks, see if you can understand how they work (I'll explain below):
+ We're missing the part where we run each task for **a little bit of time**. Our implementation runs each task to completion before moving on, but that's not what we want. What if one of the tasks took a long time to run, while the next two were super quick? The two tasks would **starve** waiting for the processor to run them. To fix that, we'll first make our example a bit more complicated. Here are the new tasks, see if you can understand how they work (I'll explain below):
 
 
 ```rust
@@ -367,14 +373,13 @@ impl Task {
 }
 ```
 
-
-
-
-
 We added a field called `run_counter` that starts with zero and is incremented every time we call `run()`. When the counter is `100` and we call `run()`, the `done` field is set to `true`, and the task returns. Then our executor will clean it up since `is_done() == true`. What this effectively does is make every task print "Hi from task {name}" 100 times. For our purposes, this simulates the task being run partially every time we call `run()` on it.
 
 
-But ideally, we want our tasks to be general and flexible, that is, we want to create a task and pass a function that it'll execute, rather than having it hardcoded in the `run()` method. To do that, let's go back to our tooth-brushing example from the last post. Let's say Aunt Fefê brushes her teeth exactly 100 times, she's a very meticulous lady! Nathan, however, is not as clean, he brushes his teeth 30 times, and I'll brush mine 20 times (solely for the sake of the example, how noble of me). How would this look in terms of code?
+Ideally, however, we want our tasks to be general and flexible, that is, we want to create a task and pass a function that it'll execute, rather than having it hardcoded in the `run()` method. To do that, let's go back to our tooth-brushing example from the last post.
+
+
+Let's say Aunt Fefê brushes her teeth exactly `100` times, she's a very meticulous lady! Nathan, however, is not as clean, he brushes his teeth `30` times, and I'll brush mine `20` times. How would this look in terms of code?
 
 First, we create a function that takes in the number of times a person brushes their teeth:
 
@@ -386,7 +391,7 @@ fn brush_teeth(times: usize) {
 }
 ```
 
-Now, we need a way to make our `run()` function execute the `brush_teeth()` function. There are two ways to do that in Rust: closures and function pointers. The former requires way too much dark magic (perhaps a topic for a future post?), so we'll go with the latter. Here's how we'd adjust our `Task` type to make this possible using function pointers:
+Now, we to make our `run()` function execute the `brush_teeth()` function. There are two ways to do that in Rust: **closures** and **function pointers**. The former requires way too much magic (perhaps a topic for a future post?). Here's how we'd adjust our `Task` type to use function pointers:
 
 
 ```rust
@@ -462,7 +467,7 @@ fn main() {
     }
 }
 ```
-Here's a summary of the changes:
+Summary of the changes:
 1. Added a `func` field that will hold the function pointer to the `Task` struct.
 2. Added a `max_runs` field that will hold the number of times to run `brush_teeth`.
 3. Added an `f` and `max_runs` as inputs to the `new()` function.
@@ -497,7 +502,9 @@ fn run(&mut self) {
 }
 ```
 
-This looks good, but our executor is still way too limited. For starters, our `Task` still very much depends on the `func` we're passing. What if we wanted to run different tasks? For instance, if I'm brushing my teeth (`brush_teeth(20)`) while Nathan does the dishes (`do_dishes(10, 20)`)? Now we have a problem, because these functions have different signatures (`brush_teeth(usize)` and `do_dishes(usize, usize)`), but our `Task` struct can only hold `fn(usize)`, not `fn(usize, usize)`, and certainly not *both*! We need an even more general and flexible approach. Enter Futures!
+This looks good, but our executor is still way too limited. For starters, our `Task` still very much depends on the `func` signature we're passing. What if we wanted to run different tasks? For instance, if I'm brushing my teeth (`brush_teeth(20)`) while Nathan does the dishes (`do_dishes(10, 20)`)? Now we have a problem, because these functions have different signatures (`brush_teeth(usize)` and `do_dishes(usize, usize)`), but our `Task` struct can only hold `fn(usize)`, not `fn(usize, usize)`, and certainly not *both*! We need an even more general and flexible approach. Enter Futures!
+
+**Note:** This next section will be a bit Rust-specific, but bear with me as these concepts are important to really understand async. Also, we'd have to go through this language-specific part ragardless of the language we were using anyway.
 
 ## Futures
 Ever wonder what the future looks like? Here it is:
@@ -509,7 +516,9 @@ pub trait Future {
 }
 ```
 
-But seriously now, what are we even looking at here? First of all, let's talk traits. Traits are what other programming languages like Java refer to as an Interface (although there might be slight differences between those definitions). In Rust, traits are a way to define general characteristics a type needs to fulfill in order to be considered "something". An example is in order: let's say a general characteristic a `Person` needs to fulfill in order to be considered a `Sibling` is the ability to `annoy` another `Sibling`. Here's how these would look in Rust:
+But what are we even looking at here? First of all, let's talk traits. Traits are what other programming languages like Java refer to as an **Interface** (although there might be slight differences between those definitions). In Rust, traits are a way to define general characteristics a type needs to fulfill in order to be considered "something".
+
+An example is in order: let's say a general characteristic a `Person` needs to fulfill in order to be considered a `Sibling` is the ability to `annoy` another `Sibling`. This is how it would look in Rust:
 ```rust
 trait Sibling {
     fn annoy(&mut self, other: &dyn Sibling);
@@ -540,7 +549,10 @@ fn main() {
 ```
 
 
-This is good because not only `Person`s can be `Siblings`, but any type that implements the `annoy` function. By our definition, any type `MyType` that *implements* all the functions specified in Sibling (`impl Sibling for MyType`) **is** a Sibling. This is very useful especially when we want to create functions that take or return different types. Remember our problem of `Task` receiving functions of both `fn(usize)` and `fn(usize, usize)`? We could just have it receive a `Future` and it'd be able to receive different types, as long as they're `Future`s.
+This is good because `Person` is not the only type that can be `Sibling`, but any type that implements the `annoy` function. By our definition, any type `MyType` that *implements* all the functions specified in `Sibling` (`impl Sibling for MyType`) **is** a `Sibling`. Say we had an `Elephant` struct. As long as we corrently implement all the functions that `Sibling` requires, with an `impl Sibling for Elephant` clause, then the `Elephant` struct could be a `Sibling` as well!
+
+
+This is very useful especially when we want to create functions that take or return different types. Remember our problem of `Task` receiving functions of both `fn(usize)` and `fn(usize, usize)`? We could just have it receive a `Future` and it'd be able to receive different types, as long as they're `Future`s.
 
 
 Now let's go back to the `Future` trait:
@@ -551,18 +563,7 @@ pub trait Future {
 }
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-Here we're basically saying: "Any type that implements the `poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output>` function is a Future".
+Here we're basically saying: "Any type that implements the `poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output>` function is a `Future`".
 
 
 **Obs**: Another important thing to note is the `Output` type inside the trait. As every task/job/future will have a different output/return type, we need to specify what the output of our Future will be. This will make more sense as we `impl Future for Task`, so don't worry too much about it for now.
@@ -586,9 +587,7 @@ pub enum Poll<T> {
 }
 ```
 
-
-
-If this is the first you're hearing about async/futures/polling it might be a lot to take in -- it's because it is! Take your time, and come back later if you need to. Also, it might be a good idea to code along to get a better feel for the issues we're facing. It can be hard to understand things like the need for `Poll` and `Future` (and even traits) without actually coding yourself.
+This is a good time to stop and appreciate how much we've covered so far: a lot! Come back later if you need to. Also, it might be a good idea to code along. It can be hard to understand things like the need for `Poll` and `Future` (and even traits) without actually writing code.
 
 \*clears throat\*
 
@@ -597,7 +596,7 @@ Let's continue.
 
 ## An async implementation of our executor
 
-Now that we know that `Poll` and `Future` exist, let's try to use them to solve our problem. First, we'll change our `Task` struct to hold a `Future` instead of a function pointer.
+Now let's try to use `Poll` and `Future` to solve our problem. First, we'll change our `Task` struct to hold a `Future` instead of a function pointer.
 
 ```rust
 pub struct Task {
@@ -606,7 +605,8 @@ pub struct Task {
     future: Pin<Box<dyn Future<Output = String>>>,
 }
 ```
-And let's have our `new()` function take in a future as well:
+
+And our `new()` function will take in a future as well:
 ```rust
 pub fn new(name: String, future: impl Future<Output = String> + 'static) -> Self {
     Self {
@@ -616,7 +616,7 @@ pub fn new(name: String, future: impl Future<Output = String> + 'static) -> Self
     }
 }
 ```
-Again, we need to do that because we want our function to be flexible. A function pointer has a strict function signature (like `fn(usize)`, which *needs* to be a function that takes exactly one `usize` and returns **"nothing"**). In other words, all `Task`s will need to have the same function signature, while with `Future`s that's not the case.
+Again, we need to do that because a function pointer has a strict function signature (like `fn(usize)`, which *needs* to be a function that takes exactly one `usize` and returns **"nothing"**). In other words, all `Task`s will need to have the same function signature, while with `Future`s that's not the case.
 
 
 **Obs**: Let's accept the concepts of **"nothing"**, `Pin`, `Box`, and the `dyn` keyword as things we need to have for our code to work. We can go into detail about why those are important in a later post.
@@ -636,10 +636,12 @@ pub fn poll(&mut self) -> String {
     }
 }
 ```
-Our `poll()` method in turn calls `poll()` on a mutable reference to our `future` (hence the `.as_mut()` there). Another thing to note is that the `poll()` method on `Future`s takes in a `Context`, but as we don't need to use this now I just created a placeholder one that holds no information whatsoever by creating a `noop_waker` that will, in turn, be used to instantiate a `Context`.
+Our `poll()` method in turn calls `poll()` on a mutable reference to our `future` (hence the `.as_mut()` there). Another thing to note is that the `poll()` method on `Future`s takes in a `Context`, but for now we're just using a placeholder from `noop_waker()` that holds no information whatsoever.
 
 
-Now for the important part: we do a `match` (which is exactly like a switch/case or an if/else clause) and, if the return result of the `poll()` function is `Poll::Ready(output)` we set `self.done = true`, take that `output` and return it ourselves. Otherwise, if the return result is `Poll::Pending` we return a string saying we're not done.
+Now for the important part: we do a `match` (which is like a switch/case or an if/else clause, but much more powerful) and, if the return result of the `poll()` function is `Poll::Ready(output)` we set `self.done = true`, take that `output` and return it ourselves. Otherwise, if the return result is `Poll::Pending` we return a string saying we're not done.
+
+**Obs:** We will not go into pattern matching and how this makes `match` incredible in this post, again, let's save that discussion for the future.
 
 
 In our main function, things are pretty much the same:
@@ -657,7 +659,7 @@ fn main() {
 }
 ```
 
-The only change was `task.run()` to `task.poll()`. But now you may be thinking: "Wait what??? We went through all that work for *this*?! This is outrageous! This is imbecilic!!". Well, not quite. You see, there's one thing missing in our `main()`, can you spot what it is? I'll give you a hint, it's actually three things.
+The only change was `task.run()` to `task.poll()`. But now you may be thinking: "Wait what??? We went through all that work for *this*?! This is stupid.". Well, not quite. You see, there's one thing missing in our `main()`, can you spot what it is? I'll give you a hint, it's actually three things.
 
 
 We're missing... tasks! We never spawn any! How about we do that:
@@ -680,7 +682,7 @@ fn main() {
 
 Okay, now we have a task on our executor, but trying to run this code gives us:
 ```bash
-➜  cargo run                                       <<<
+➜  cargo run
    Compiling episode-1-async v0.1.0
 error[E0425]: cannot find value `future` in this scope
   --> src/main.rs:10:53
@@ -721,7 +723,7 @@ fn main() {
 ```
 
 
-This code runs just fine, but it doesn't quite do what we want yet. We need a final touch, can you figure out what it is? Hint: try to figure out what the output of the following code will be versus what it *should* be:
+This code runs just fine, but we need a final touch. Can you figure out what it is? Hint: try to figure out what the output of the following code will be versus what it *should* be:
 
 ```rust
 async fn brush_teeth(times: usize) -> String {
@@ -891,7 +893,7 @@ Went through all tasks once
 
 As a final exercise, try to figure out why `Went through all tasks once` appears twice in the end.
 
-Now of course there is one last thing for us to do: solve our original toothbrushing problem. For that, all we need to do is add some tasks. Here's what that would look like:
+Now of course there is one last thing (I promise) for us to do: solve our original toothbrushing problem. For that, all we need to do is add some tasks. Here's what that would look like:
 
 
 ```rust
