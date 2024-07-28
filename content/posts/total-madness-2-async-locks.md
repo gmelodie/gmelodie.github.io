@@ -1,5 +1,5 @@
 +++
-public = "true"
+public = "false"
 date = "2024-07-31"
 title = "Total Madness #2: Async Locks"
 series = ["Total Madness"]
