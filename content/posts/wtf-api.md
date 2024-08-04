@@ -1,10 +1,10 @@
 +++
-public = "false"
+public = "true"
 date = "2024-08-07"
 title = "WTF is an API? (or, \"Everything's a Lie\")"
 +++
 
-This is a rewrite of an older post of mine ([this one](https://gmelodie.medium.com/get-started-in-web-development-with-me-protocols-servers-and-http-33c527725b74)). It bothers me that a lot of people explaining APIs throw around loads of buzzwords, but don't actually know what they're talking about. These people are not explaining APIs, they're just trying to sound smart. The reason why this post could also be called "Everything's a Lie" is because a lot of what we'll be doing is proving that most things you see around about APIs are just lies.
+This is a rewrite of an older post of mine ([this one](https://gmelodie.medium.com/get-started-in-web-development-with-me-protocols-servers-and-http-33c527725b74)). It bothers me that a lot of people explaining APIs throw around loads of confusing, meaningless buzzwords, to an otherwise easily explainable topic. It feels like these people are just trying to sound smart instead of explaining APIs. The reason why this post could also be called "Everything's a Lie" is because a lot of what we'll be doing is proving that most things you see around about APIs are just lies.
 
 In this post, we'll explore the meaning and reasoning behind the idea of an API, see some examples, and talk about REST. Oh, and we'll be doing some coding as well, as always.
 
@@ -15,18 +15,20 @@ Shall we?
 ## The naming
 First things first, let's talk about the acronym. API stands for **Application Programming Interface**, what does that mean?
 
-The important part is **Interface**. An interface is anything that sits between two other things. We call the USB port a USB *interface* because it lets the computer communicate with peripherals (or vice-versa). Interfaces are important because they enforce a **protocol** that the two things connected must speak. It doesn't matter how the mouse or the computer are built, if they communicate through USB, they should follow the USB standard. **Application Programming** means that we are creating an interface to talk to applications, to make *application programming* easier.
+The important part is **Interface**. An interface is anything that sits between two other things. We call the USB port a USB *interface* because it lets the computer communicate with peripherals (or vice-versa). Interfaces are important because they enforce a **protocol** that both ends must speak. It doesn't matter how the mouse or the computer are built, if they communicate through USB, they should follow the USB standard. **Application Programming** means creating an interface for applications to talk to each other, making *application programming* easier.
 
-> **Protocols** in the computer world are a set of rules that devices should adhere to in order to communicate. Something like: "To adhere to the USB standard, you must send three bytes with values `x`, `y` and `z`, then you should wait for the other device to send value `a1`, etc."
+> **Protocols** in the computer world are a set of rules that devices should adhere to to communicate. Something like: "To adhere to the USB standard, you must send three bytes with values `x`, `y` and `z`, then you should wait for the other device to send value `a1`, etc."
+>
+> **e.g.:** In a valid HTTP request message, the first few characters must be the method (`GET`, `POST`, `DELETE`, etc) followed by a whitespace, followed by a path (`/users`, `/`, etc) followed by... You get the idea.
 
 
 If you have ever read anything about APIs you might be wondering: what does this have to do with HTTP or GET or POST? And the answer is: nothing! Really, nothing. In theory, there's nothing that dictates that APIs have to be implemented using HTTP.
 
 If you've never read anything about APIs before, however, the last paragraph made no sense whatsoever. Let's rewind a bit.
 
-## SDKs are APIs
+## Libs are APIs
 
-To explain what I mean by `SDKs are APIs`, let's implement a simple Rust library to print ASCII characters enclosing text, like so:
+To explain what I mean by `Libs are APIs`, let's implement a simple Rust library (or lib) to print ASCII characters enclosing text, like so:
 
 ```rust
 let my_text = "hello world";
@@ -77,18 +79,23 @@ pub fn enclose(text: &str, enclose_char: char) -> String {
 
 The important change is that we return the new enclosed string instead of printing it to the standard output. This is important because if we want people *programming applications* we need to make our code easily pluggable. This new version allows programmers to get the strings and do whatever they want with it. Maybe they don't want to print the string, maybe they want to plot it as a 3D model instead!
 
-What we wrote is a library (lib, for short), but it could also be called an SDK: a **Software Development Kit**. SDKs are just a collection of functions that allow you to develop something easier. We usually don't call every lib an SDK, but they're the same thing. Purists will say they're not. They're wrong. Purists are bikeshedding dicks. Do not trust purists.
+What we wrote is a library (lib, for short). Libs are collections of functions and types that help to develop something. Per our previous definitions, a lib is an API: it's code on top of which people build applications. Now, let's explore what people *usually* mean when they talk about APIs.
 
-Per our previous definitions, an SDK is therefore an API: it's code on top of which people build applications. Now, let's explore what people *usually* mean when they talk about APIs.
+> **Note:** "Technically," purists will say, "libs **have** APIs, because the API would be only the function signatures such as `pub fn enclose(&str, char) -> String` in our example."
+>
+> Purists are bikeshedding dicks. Do not trust purists.
 
 
 ## What people usually mean when they talk about APIs
 
 In the early days of the internet websites were dead stupid: static HTML, manually updated from time to time.
 
-> **Static HTML** pages are what we call HTML that's in a file in the server (the HTTP server, also called a "web server"), which hands clients a copy of that file. **Dynamic** pages on the other hand use code and style sheets (e.g. JavaScript and CSS) to generate the HTML, so the server doesn't really have a copy of the HTML files, the final HTML is generated by combining CSS, JS, and HTML templates on the client.
+> **Static HTML** pages are what we call HTML that's in a file in the server (the HTTP server, also called a "web server"), which hands clients a copy of that file. **Dynamic** pages on the other hand contain code and style sheets, usually JavaScript and CSS respectively, that allow the client to *dynamically* generate the "final" HTML. With dynamic pages, the client downloads HTML templates, JS, CSS, and then generates one big HTML by crunching those three together.
 
-Let's say we wanted to write a bot to get the titles of the news from your local newspaper website back in 2001. Back then, you'd probably have to download the HTML for the entire page, parse it, and spit out only the titles. Here's what that would look like in Python (in this case we're parsing [motherfuckingwebsite.com](http://motherfuckingwebsite.com)):
+Let's say we wanted to write a bot to get the news titles from your local newspaper website back in 2001. Back then, you'd probably have to download the HTML for the entire page, parse it, and spit out only the titles[^1]. Here's what that would look like in Python (in this case we're parsing [motherfuckingwebsite.com](http://motherfuckingwebsite.com)):
+
+[^1]: [RSS](https://wikipedia.org/wiki/RSS) wasn't very popular then.
+
 ```python
 import requests
 import re
@@ -104,6 +111,7 @@ for t in titles:
     print(t)
 ```
 
+
 Output:
 ```
 Seriously, what the fuck else do you want?
@@ -113,7 +121,7 @@ It fucking works
 This is a website. Look at it.  You've never seen one before.
 ```
 
-This approach is (1) wasteful because we have to download many characters (the entire page!) just to get a few titles and (2) the code is hard to maintain because we have to figure out where the titles are in the HTML (in this case they're on the `h2` tags), and if they decide to change the layout of the website, we'd have to rewrite our bot.
+This approach is (1) wasteful because we have to download many characters (the entire page!) only to get a few titles and (2) the code is hard to maintain because we have to figure out where the titles are in the HTML (in this case they're on the `h2` tags), and if they decide to change the layout of the website, we'd have to rewrite our bot.
 
 So when people talk about APIs, they usually mean **HTTP APIs**, which is a way to facilitate getting information for your website. Let's write an API for [motherfuckingwebsite.com](http://motherfuckingwebsite.com):
 
@@ -145,7 +153,7 @@ Here's what we do:
 2. Spawn a webserver of our own
 3. Make the list of titles available in JSON by `GET`ting `/titles`
 
-If our website was called `amazingwebsite.com` then you'd only have to `GET http://amazingwebsite.com/titles` to get the JSON with the titles.
+If our website were called `amazingwebsite.com` then you'd only have to `GET http://amazingwebsite.com/titles` to get the JSON with the titles.
 
 
 ## REST: Representational State Transfer
@@ -157,7 +165,7 @@ Here's what a bio update looks like:
 curl -X POST https://api.twitter.com/1.1/account/update_profile.json?name=Sean%20Cook&description=Keep%20calm%20and%20rock%20on
 ```
 
-HTTP uses **verbs/methods** to allow us to do different things with a server. If we're requesting information, that's typically a `GET` request, but in the example above we're actually sending data to the server, so we use the `POST` method. The cool thing is that we can have different behaviors for the same route if we use different methods:
+HTTP uses **verbs/methods** to allow us to do different things with a server. If we're requesting information, that's typically a `GET` request, but in the example above we're actually sending data to the server, so we use the `POST` method. The cool thing is that we can have different behaviors for the same route by using different methods:
 
 ```
 # get data on the gmelodie account
@@ -177,9 +185,9 @@ That's basically what a REST API is. Again, purists will say there's much more t
 From [dictionary.cambridge.org](https://dictionary.cambridge.org/dictionary/english/idempotent):
 > An idempotent element of a set does not change in value when multiplied by itself.
 
-In the context of programming, a function is idempotent if, when called twice with the same parameters, the operation only happens once. This is especially interesting when building APIs. For instance, if a client makes two requests to send the same tweet, they probably don't want to post the same tweet again.
+In programming, a function is idempotent if, when called twice with the same parameters, the operation only happens once. This is especially interesting when building APIs. For instance, if a client makes two requests to send the same tweet, they probably don't want to post the same tweet again.
 
-Or do they? Maybe they do! To make sure the client wants to do the same thing twice, you can add an [`idempotency-key`](https://docs.bankly.com.br/docs/idempotency-key) field to the requests. If the server gets two identical requests to post the same tweet with the same `idempotency-key`, it'll disregard one of them. Now, if the server gets two identical requests to post a tweet, but with two different `idempotency-key`s, then it'll post both tweets.
+Or do they? Maybe they do! To make sure the client wants to do the same thing twice, you can add an [`idempotency-key`](https://docs.bankly.com.br/docs/idempotency-key) field to the requests. If the server gets two identical requests to post the same tweet with the same `idempotency-key`, it'll disregard one of them. Now, if the server receives two identical requests to post a tweet, but with two different `idempotency-key`s, it'll post both tweets.
 
 ---
 Thank you for reading!
