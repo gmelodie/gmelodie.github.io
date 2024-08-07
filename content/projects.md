@@ -3,6 +3,11 @@ title = "Projects"
 slug = "projects"
 +++
 
+# Cruzos
+Operating System written entirely in Rust.
+
+https://github.com/gmelodie/cruzos
+
 # Killer Triangle
 Asteroid-like browser game made in Rust using Macroquad and compiled to WASM.
 
