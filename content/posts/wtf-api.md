@@ -26,9 +26,9 @@ If you have ever read anything about APIs you might be wondering: what does this
 
 If you've never read anything about APIs before, however, the last paragraph made no sense whatsoever. Let's rewind a bit.
 
-## Libs are APIs
+## APIs are like libs
 
-To explain what I mean by `Libs are APIs`, let's implement a simple Rust library (or lib) to print ASCII characters enclosing text, like so:
+To explain what I mean, let's implement a simple Rust library (or lib) to print ASCII characters enclosing text, like so:
 
 ```rust
 let my_text = "hello world";
@@ -79,7 +79,7 @@ pub fn enclose(text: &str, enclose_char: char) -> String {
 
 The important change is that we return the new enclosed string instead of printing it to the standard output. This is important because if we want people *programming applications* we need to make our code easily pluggable. This new version allows programmers to get the strings and do whatever they want with it. Maybe they don't want to print the string, maybe they want to plot it as a 3D model instead!
 
-What we wrote is a library (lib, for short). Libs are collections of functions and types that help to develop something. Per our previous definitions, a lib is an API: it's code on top of which people build applications. Now, let's explore what people *usually* mean when they talk about APIs.
+What we wrote is a library (lib, for short). Libs are collections of functions and types that help to develop something. A lib is like an API: it's code on top of which people build applications. Now, let's explore what people *usually* mean when they talk about APIs.
 
 > **Note:** "Technically," purists will say, "libs **have** APIs, because the API would be only the function signatures such as `pub fn enclose(&str, char) -> String` in our example."
 >
