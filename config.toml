@@ -3,7 +3,7 @@ title = "Gabriel Cruz"
 theme = "hugo-coder"
 languageCode = "en"
 defaultContentLanguage = "en"
-paginate = 20
+pagination.pagerSize = 20
 
 pygmentsStyle = "gruvbox"
 pygmentsCodeFences = true
