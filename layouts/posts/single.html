@@ -15,13 +15,13 @@
         <div class="post-meta">
           <div class="date">
             <span class="posted-on">
-              <i class="fa fa-calendar" aria-hidden="true"></i>
+              <i class="fa-solid fa-calendar" aria-hidden="true"></i>
               <time datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">
                 {{ .Date | time.Format (.Site.Params.dateFormat | default "January 2, 2006" ) }}
               </time>
             </span>
             <span class="reading-time">
-              <i class="fa fa-clock-o" aria-hidden="true"></i>
+              <i class="fa-solid fa-clock" aria-hidden="true"></i>
               {{ i18n "reading_time" .ReadingTime }}
             </span>
           </div>
@@ -29,14 +29,7 @@
           {{ with .GetTerms "categories" }}{{ partial "taxonomy/categories.html" . }}{{ end }}
           {{ with .GetTerms "tags" }}{{ partial "taxonomy/tags.html" . }}{{ end }}
 
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
-            {{ if .PrevInSection }}
-            <a style="text-align: left;" class="link-reverse" href="{{ .PrevInSection.Permalink }}">« {{ .PrevInSection.Title | truncate 50 "..." }}</a>
-            {{ end }}
-            {{ if .NextInSection }}
-            <a style="text-align: left;" class="link-reverse" href="{{ .NextInSection.Permalink }}">{{ .NextInSection.Title | truncate 50 "..."}} »</a>
-            {{ end }}
-          </div>
+          {{ partial "posts/post-nav.html" . }}
         </div>
       </header>
 
@@ -47,14 +40,7 @@
         {{ .Content }}
       </div>
 
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
-        {{ if .PrevInSection }}
-        <a style="text-align: left;" class="link-reverse" href="{{ .PrevInSection.Permalink }}">« {{ .PrevInSection.Title | truncate 50 "..." }}</a>
-        {{ end }}
-        {{ if .NextInSection }}
-        <a style="text-align: left;" class="link-reverse" href="{{ .NextInSection.Permalink }}">{{ .NextInSection.Title | truncate 50 "..."}} »</a>
-        {{ end }}
-      </div>
+      {{ partial "posts/post-nav.html" . }}
 
       <footer>
         {{ partial "posts/series.html" . }}
@@ -62,6 +48,9 @@
         {{ partial "posts/commento.html" . }}
         {{ partial "posts/utterances.html" . }}
         {{ partial "posts/giscus.html" . }}
+        {{ partial "posts/mastodon.html" . }}
+        {{ partial "posts/telegram.html" . }}
+        {{ partial "posts/cusdis.html" . }}
       </footer>
     </article>
 

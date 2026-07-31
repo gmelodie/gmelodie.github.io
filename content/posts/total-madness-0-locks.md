@@ -3,7 +3,6 @@ public = "true"
 date = "2024-07-03"
 title = "Total Madness #0: Locks"
 series = ["Total Madness"]
-series_order = 1
 +++
 
 This is the first post in a series about my urges to figure out the dark magics of the computer world. You see, I recently have had some free time on my hands, and I decided to spend it to scratch some itches I've had for as long as I can code (writing an [OS in Rust](https://github.com/gmelodie/cruzos), for instance). As I dove deeper into the dark magics, I discovered the truth about things I never really liked to assume are true (but did it anyways, for the sake of sanity, at the time).

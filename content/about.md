@@ -2,7 +2,7 @@
 title = "About"
 description = "Who I am, what I like and what I'm doing"
 date = "2023-04-14"
-aliases = ["about-us", "contact"]
+aliases = ["about-us"]
 +++
 
 Hey there! I'm Gabe. I'm a Software Engineer based in São Carlos, SP, Brazil.

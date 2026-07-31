@@ -9,8 +9,9 @@
       </a>
     </h1>
     {{ .Content }}
+    {{ $paginator := .Paginate (where .RegularPages "Params.public" "true") }}
     <ul>
-      {{- range where .Paginator.Pages "Params.public" "true" -}}
+      {{- range $paginator.Pages -}}
         {{- .Render "li" -}}
       {{- end -}}
     </ul>

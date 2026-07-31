@@ -29,7 +29,7 @@ jobs:
 
       # Correct, PATH-safe Hugo installation
       - name: Setup Hugo
-        uses: peaceiris/actions-hugo@v2
+        uses: peaceiris/actions-hugo@v3
         with:
           hugo-version: '0.154.3'
           extended: true
@@ -40,14 +40,7 @@ jobs:
 
       - name: Setup Pages
         id: pages
-        uses: actions/configure-pages@v3
-
-      # Only runs if you actually have Node deps
-      - name: Install Node.js dependencies
-        run: |
-          if [[ -f package-lock.json || -f npm-shrinkwrap.json ]]; then
-            npm ci
-          fi
+        uses: actions/configure-pages@v5
 
       - name: Build site with Hugo
         env:

@@ -1,5 +1,5 @@
 public/
-_site
-.sass-cache
-.jekyll-metadata
+resources/_gen/
+.hugo_build.lock
+.sass-cache/
 node_modules/

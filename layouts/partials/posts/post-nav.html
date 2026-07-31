@@ -1,0 +1,10 @@
+{{ if or .PrevInSection .NextInSection }}
+  <nav class="post-nav">
+    {{ with .PrevInSection }}
+      <a class="link-reverse post-nav-prev" href="{{ .Permalink }}">« {{ .Title | truncate 50 "..." }}</a>
+    {{ end }}
+    {{ with .NextInSection }}
+      <a class="link-reverse post-nav-next" href="{{ .Permalink }}">{{ .Title | truncate 50 "..." }} »</a>
+    {{ end }}
+  </nav>
+{{ end }}

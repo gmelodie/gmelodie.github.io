@@ -6,7 +6,7 @@ series = ["Total Madness"]
 +++
 
 
-In the [first episode](./total-madness-0-locks.md) of this series, we discussed why locks are important and the issues that come with them. [Last time](./total-madness-1-async-await.md) we unraveled the inners of the async/await concurrency model. Now, let us finally merge these two topics to explore **Async Locks**: a way to overcome some traditional locking issues using the async/await model. Finally, we'll explore the difference between Rust's `std::sync::Mutex` and `tokio::sync::Mutex` and how this relates to async locks.
+In the [first episode]({{< relref "total-madness-0-locks.md" >}}) of this series, we discussed why locks are important and the issues that come with them. [Last time]({{< relref "total-madness-1-async-await.md" >}}) we unraveled the inners of the async/await concurrency model. Now, let us finally merge these two topics to explore **Async Locks**: a way to overcome some traditional locking issues using the async/await model. Finally, we'll explore the difference between Rust's `std::sync::Mutex` and `tokio::sync::Mutex` and how this relates to async locks.
 
 
 **Obs:** I'll use the terms "Lock" and "Mutex" interchangeably (`lock == mutex`), as well as the verbs "Acquire" and "Lock" (`lock == acquire`). So to avoid saying "lock the lock" I'll say "acquire the lock" or "lock the mutex", just know it is all the same thing.
@@ -20,7 +20,7 @@ As a reminder, let's review our original example and see why we even need locks 
 A lock, or `Mutex`, is just a way to allow tasks to do that. In this analogy, saying "I'm first!" is analogous to `mutex.lock()`, so if a task acquires a mutex, all other tasks trying to acquire it have to wait until the first one is done (i.e. when it calls `mutex.unlock()`, or `mutex.release()` or whatever name the developers decided to use).
 
 
-As we saw on [Episode #0: Locks](./total-madness-0-locks.md), this is all fun and games until we face `Deadlocks`, which is when tasks get stuck waiting forever on each other. Several different situations can cause a deadlock, but a very common one is interrupts. Let's see an example of interrupts causing a deadlock from that episode:
+As we saw on [Episode #0: Locks]({{< relref "total-madness-0-locks.md" >}}), this is all fun and games until we face `Deadlocks`, which is when tasks get stuck waiting forever on each other. Several different situations can cause a deadlock, but a very common one is interrupts. Let's see an example of interrupts causing a deadlock from that episode:
 ```rust
 fn main() {
     let mut tb_lock = ToothbrushLock::new();
@@ -121,7 +121,7 @@ fn main() {
 }
 ```
 
-Now, what we want to do is change it to have a `ToothbrushLock`. For this, let's start with the code we wrote in the [first episode](./total-madness-0-locks.md):
+Now, what we want to do is change it to have a `ToothbrushLock`. For this, let's start with the code we wrote in the [first episode]({{< relref "total-madness-0-locks.md" >}}):
 
 ```rust
 struct ToothbrushLock {
@@ -645,7 +645,7 @@ Suck it Tokio.
 **Obs:** I'm kidding of course, you absolutely should not be writing your own locks if can you have the super smart Tokio people do that for you. Go do something else, i don't know, go fish or whatever.
 
 ## Appendix II: Atomic Async Locks
-What we did was all fun and games, but if an interrupt occurs in the middle of the code we wrote, it all goes to shit. Solving this requires atomic operations that guarantee that they won't be interrupted. We did the same thing in [Episode #0: Locks](./total-madness-0-locks.md):
+What we did was all fun and games, but if an interrupt occurs in the middle of the code we wrote, it all goes to shit. Solving this requires atomic operations that guarantee that they won't be interrupted. We did the same thing in [Episode #0: Locks]({{< relref "total-madness-0-locks.md" >}}):
 ```rust
 use futures::pending;
 use std::cell::UnsafeCell;

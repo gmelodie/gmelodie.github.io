@@ -1,0 +1,54 @@
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 200;
+}
+
+h1 {
+  font-size: 5.8rem;
+  line-height: 7.6rem;
+
+  @media only screen and (max-width: 768px) {
+    font-size: 3rem;
+    line-height: 3.4rem;
+  }
+}
+
+.navigation {
+  a,
+  span {
+    font-weight: 300;
+  }
+}
+
+.avatar img {
+  @media only screen and (max-width: 768px) {
+    width: 10rem;
+  }
+}
+
+.list {
+  ul {
+    li {
+      .title {
+        font-weight: 300;
+      }
+    }
+  }
+}
+
+.post-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  margin-top: 2rem;
+
+  .post-nav-next {
+    margin-left: auto;
+    text-align: right;
+  }
+}
